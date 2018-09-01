@@ -23,18 +23,6 @@ extras['all'] = all_deps
 setup(name='baselines',
       packages=[package for package in find_packages()
                 if package.startswith('baselines')],
-      install_requires=[
-          'gym[mujoco,atari,classic_control,robotics]',
-          'scipy',
-          'tqdm',
-          'joblib',
-          'dill',
-          'progressbar2',
-          'mpi4py',
-          'cloudpickle',
-          'click',
-          'opencv-python'
-      ],
       extras_require=extras,
       description='OpenAI baselines: high quality implementations of reinforcement learning algorithms',
       author='OpenAI',
