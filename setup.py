@@ -44,9 +44,9 @@ setup(name='baselines',
 
 
 # ensure there is some tensorflow build with version above 1.4
-try:
-    from distutils.version import StrictVersion
-    import tensorflow
-    assert StrictVersion(tensorflow.__version__) >= StrictVersion('1.4.0')
-except ImportError:
-    assert False, "TensorFlow needed, of version above 1.4"
+# try:
+#     from distutils.version import StrictVersion
+#     import tensorflow
+#     assert StrictVersion(tensorflow.__version__) >= StrictVersion('1.4.0')
+# except ImportError:
+#     assert False, "TensorFlow needed, of version above 1.4"
