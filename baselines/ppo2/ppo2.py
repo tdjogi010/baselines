@@ -100,6 +100,7 @@ class Runner(AbstractEnvRunner):
         mb_obs, mb_rewards, mb_actions, mb_values, mb_dones, mb_neglogpacs = [],[],[],[],[],[]
         mb_states = self.states
         epinfos = []
+        print("self.nsteps", self.nsteps)
         for _ in range(self.nsteps):
             actions, values, self.states, neglogpacs = self.model.step(self.obs, S=self.states, M=self.dones)
             mb_obs.append(self.obs.copy())
@@ -112,6 +113,7 @@ class Runner(AbstractEnvRunner):
                 maybeepinfo = info.get('episode')
                 if maybeepinfo: epinfos.append(maybeepinfo)
             mb_rewards.append(rewards)
+            print("steps",_)
         #batch of steps to batch of rollouts
         mb_obs = np.asarray(mb_obs, dtype=self.obs.dtype)
         mb_rewards = np.asarray(mb_rewards, dtype=np.float32)
@@ -216,7 +218,6 @@ def learn(*, network, env, total_timesteps, seed=None, nsteps=2048, ent_coef=0.0
     else: assert callable(cliprange)
     total_timesteps = int(total_timesteps)
 
-    policy = build_policy(env, network, **network_kwargs)
 
     nenvs = env.num_envs
     ob_space = env.observation_space
@@ -224,12 +225,19 @@ def learn(*, network, env, total_timesteps, seed=None, nsteps=2048, ent_coef=0.0
     nbatch = nenvs * nsteps
     nbatch_train = nbatch // nminibatches
 
+    policy = build_policy(ob_space, ac_space, network, **network_kwargs)
     make_model = lambda : Model(policy=policy, ob_space=ob_space, ac_space=ac_space, nbatch_act=nenvs, nbatch_train=nbatch_train,
                     nsteps=nsteps, ent_coef=ent_coef, vf_coef=vf_coef,
                     max_grad_norm=max_grad_norm)
+    if save_interval and logger.get_dir():
+        import cloudpickle
+        with open(osp.join(logger.get_dir(), 'make_model.pkl'), 'wb') as fh:
+            fh.write(cloudpickle.dumps(make_model))
+        print("saved model")
     model = make_model()
     if load_path is not None:
         model.load(load_path)
+        print("model loaded")
     runner = Runner(env=env, model=model, nsteps=nsteps, gamma=gamma, lam=lam)
 
     epinfobuf = deque(maxlen=100)
