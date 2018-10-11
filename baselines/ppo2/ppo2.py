@@ -305,6 +305,7 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
     model = make_model()
     if load_path is not None:
         model.load(load_path)
+        print("Model loaded")
     # Instantiate the runner object
     runner = Runner(env=env, model=model, nsteps=nsteps, gamma=gamma, lam=lam)
     if eval_env is not None:
@@ -352,7 +353,9 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
                     end = start + nbatch_train
                     mbinds = inds[start:end]
                     slices = (arr[mbinds] for arr in (obs, returns, masks, actions, values, neglogpacs))
+                    print("Gradient updating")
                     mblossvals.append(model.train(lrnow, cliprangenow, *slices))
+                    print("Gradient updated")
         else: # recurrent version
             assert nenvs % nminibatches == 0
             envsperbatch = nenvs // nminibatches
